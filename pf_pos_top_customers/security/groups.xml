@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_top_pos_customers_report" model="res.groups">
+        <field name="name">Top POS Customers Report</field>
+        <field name="privilege_id" eval="False"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Enables the Top POS Customers Report in Point of Sale Reporting menu.</field>
+    </record>
+</odoo>
