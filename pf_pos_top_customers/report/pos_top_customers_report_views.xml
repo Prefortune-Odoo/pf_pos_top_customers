@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_pos_top_customers" model="ir.actions.report">
+        <field name="name">Top POS Customers</field>
+        <field name="model">pf.pos.top.customers.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pf_pos_top_customers.report_top_customers_template</field>
+        <field name="report_file">pf_pos_top_customers.report_top_customers_template</field>
+        <field name="print_report_name">'Top POS Customers - %s' % (object.current_datetime_str)</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <template id="report_top_customers_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333333;">
+
+                       
+                        <div class="text-center" style="margin-top: 30px; margin-bottom: 20px;">
+                            <h2 style="color: #714B67; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                                Top POS Customers Report
+                            </h2>
+                            <h5 style="color: #555555; font-weight: 300;">
+                                <t t-if="doc.report_type == 'basic'">
+                                    Period: <span t-field="doc.from_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/> to <span t-field="doc.to_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/>
+                                </t>
+                                <t t-else="">
+                                    Comparison Period: [<span t-field="doc.from_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/> - <span t-field="doc.to_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/>] vs [<span t-field="doc.comp_from_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/> - <span t-field="doc.comp_to_date" t-options="{'format': 'dd/MM/yyyy HH:mm:ss'}"/>]
+                                </t>
+                            </h5>
+                        </div>
+
+                       
+                        <div class="row">
+                            <div class="col-12">
+                                <t t-if="doc.report_type == 'basic'">
+                                    <table class="table table-sm table-striped table-bordered" style="width: 100%; border-collapse: collapse; border: 1px solid #dddddd;">
+                                        <thead>
+                                            <tr style="background-color: #714B67; color: #ffffff; font-size: 13px;">
+                                                <th class="text-center" style="width: 10%; padding: 8px; border: 1px solid #fafafaff; color: #ffffff !important;">#</th>
+                                                <th class="text-left" style="width: 50%; padding: 8px; border: 1px solid #fff5f5ff; color: #ffffff !important;">Customer</th>
+                                                <th class="text-right" style="width: 20%; padding: 8px; border: 1px solid #fff1f1ff; text-align: right; color: #ffffff !important;">POS Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="get_report_data(doc)" t-as="row">
+                                                <tr style="font-size: 12px;">
+                                                    <td class="text-center" style="padding: 6px; text-align: center; border: 1px solid #dddddd;">
+                                                        <t t-esc="row['index']"/>
+                                                    </td>
+                                                    <td class="text-left" style="padding: 6px; border: 1px solid #dddddd;">
+                                                        <t t-esc="row['partner_name']"/>
+                                                    </td>
+                                                    <td class="text-right" style="padding: 6px; text-align: right; border: 1px solid #dddddd;">
+                                                        <span t-esc="row['total_amount']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+                                            <t t-if="not get_report_data(doc)">
+                                                <tr>
+                                                    <td colspan="4" class="text-center" style="padding: 10px; text-align: center; color: #999999;">
+                                                        No POS orders found for the selected filters.
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center" style="font-weight: bold; margin-bottom: 10px; color: #714B67; border-bottom: 2px solid #714B67; padding-bottom: 5px; font-size: 13px;">
+                                                Current Period
+                                            </div>
+                                            <table class="table table-sm table-striped table-bordered" style="width: 100%; border-collapse: collapse; border: 1px solid #dddddd;">
+                                                <thead>
+                                                    <tr style="background-color: #714B67; color: #ffffff; font-size: 11px;">
+                                                        <th class="text-center" style="width: 15%; padding: 6px; border: 1px solid #dddddd; color: #ffffff !important;">#</th>
+                                                        <th class="text-left" style="width: 55%; padding: 6px; border: 1px solid #dddddd; color: #ffffff !important;">Customer</th>
+                                                        <th class="text-right" style="width: 30%; padding: 6px; border: 1px solid #dddddd; text-align: right; color: #ffffff !important;">POS Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-set="report_data" t-value="get_report_data(doc)"/>
+                                                    <t t-foreach="report_data['active_data']" t-as="row">
+                                                        <tr style="font-size: 11px;">
+                                                            <td class="text-center" style="padding: 5px; text-align: center; border: 1px solid #dddddd;">
+                                                                <t t-esc="row['index']"/>
+                                                            </td>
+                                                            <td class="text-left" style="padding: 5px; border: 1px solid #dddddd;">
+                                                                <t t-esc="row['partner_name']"/>
+                                                            </td>
+                                                            <td class="text-right" style="padding: 5px; text-align: right; border: 1px solid #dddddd;">
+                                                                <span t-esc="row['total_amount']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-if="not report_data['active_data']">
+                                                        <tr>
+                                                            <td colspan="3" class="text-center" style="padding: 10px; text-align: center; color: #999999; font-size: 11px;">
+                                                                No customers found.
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                     
+                                        <div class="col-6">
+                                            <div class="text-center" style="font-weight: bold; margin-bottom: 10px; color: #714B67; border-bottom: 2px solid #714B67; padding-bottom: 5px; font-size: 13px;">
+                                                Comparison Period
+                                            </div>
+                                            <table class="table table-sm table-striped table-bordered" style="width: 100%; border-collapse: collapse; border: 1px solid #dddddd;">
+                                                <thead>
+                                                    <tr style="background-color: #714B67; color: #ffffff; font-size: 11px;">
+                                                        <th class="text-center" style="width: 15%; padding: 6px; border: 1px solid #dddddd; color: #ffffff !important;">#</th>
+                                                        <th class="text-left" style="width: 55%; padding: 6px; border: 1px solid #dddddd; color: #ffffff !important;">Compare Customer</th>
+                                                        <th class="text-right" style="width: 30%; padding: 6px; border: 1px solid #dddddd; text-align: right; color: #ffffff !important;">POS Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-set="report_data" t-value="get_report_data(doc)"/>
+                                                    <t t-foreach="report_data['compare_data']" t-as="row">
+                                                        <tr style="font-size: 11px;">
+                                                            <td class="text-center" style="padding: 5px; text-align: center; border: 1px solid #dddddd;">
+                                                                <t t-esc="row['index']"/>
+                                                            </td>
+                                                            <td class="text-left" style="padding: 5px; border: 1px solid #dddddd;">
+                                                                <t t-esc="row['partner_name']"/>
+                                                            </td>
+                                                            <td class="text-right" style="padding: 5px; text-align: right; border: 1px solid #dddddd;">
+                                                                <span t-esc="row['total_amount']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-if="not report_data['compare_data']">
+                                                        <tr>
+                                                            <td colspan="3" class="text-center" style="padding: 10px; text-align: center; color: #999999; font-size: 11px;">
+                                                                No customers found.
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="row" style="margin-top: 30px;">
+                                        <div class="col-6">
+                                            <div style="background-color: #D4EDDA; color: #155724; padding: 8px 12px; font-weight: bold; border-top-left-radius: 4px; border-top-right-radius: 4px; border: 1px solid #C3E6CB; font-size: 12px;">
+                                                <i class="fa fa-user-plus" style="margin-right: 5px;"/>New Customers
+                                            </div>
+                                            <div style="padding: 12px; border: 1px solid #C3E6CB; border-top: none; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; background-color: #F8F9FA; min-height: 80px; font-size: 11px;">
+                                                <t t-if="report_data['new_customers']">
+                                                    <ul style="margin: 0; padding-left: 15px;">
+                                                        <t t-foreach="report_data['new_customers']" t-as="cust">
+                                                            <li style="margin-bottom: 4px;"><t t-esc="cust"/></li>
+                                                        </t>
+                                                    </ul>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #666666;">No new customers.</span>
+                                                </t>
+                                            </div>
+                                        </div>
+
+                                      
+                                        <div class="col-6">
+                                            <div style="background-color: #F8D7DA; color: #721C24; padding: 8px 12px; font-weight: bold; border-top-left-radius: 4px; border-top-right-radius: 4px; border: 1px solid #F5C6CB; font-size: 12px;">
+                                                <i class="fa fa-user-times" style="margin-right: 5px;"/>Lost Customers
+                                            </div>
+                                            <div style="padding: 12px; border: 1px solid #F5C6CB; border-top: none; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; background-color: #F8F9FA; min-height: 80px; font-size: 11px;">
+                                                <t t-if="report_data['lost_customers']">
+                                                    <ul style="margin: 0; padding-left: 15px;">
+                                                        <t t-foreach="report_data['lost_customers']" t-as="cust">
+                                                            <li style="margin-bottom: 4px;"><t t-esc="cust"/></li>
+                                                        </t>
+                                                    </ul>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #666666;">No lost customers.</span>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                      
+                        <div class="row" style="margin-top: 40px; font-size: 15px; color: #888888;">
+                            <div class="col-12 text-right" style="text-align: right;">
+                                Report Generated on: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
