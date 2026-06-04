@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_top_customers_wizard_form" model="ir.ui.view">
+        <field name="name">pf.pos.top.customers.wizard.form</field>
+        <field name="model">pf.pos.top.customers.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Top Customers">
+                <sheet>
+                    <group>
+                        <field name="report_type" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                            <field name="no_of_items"/>
+                            <field name="company_ids" widget="many2many_tags" options="{'no_create': true}" domain="[('id', 'in', allowed_company_ids)]"/>
+                            <field name="pos_config_ids" widget="many2many_tags" options="{'no_create': true}" context="{'show_company_in_pos_config': True}" domain="[('company_id', 'in', company_ids)]"/>
+                        </group>
+                        <group>
+                            <field name="comp_from_date" invisible="report_type != 'compare'" required="report_type == 'compare'"/>
+                            <field name="comp_to_date" invisible="report_type != 'compare'" required="report_type == 'compare'"/>
+                            <field name="total_pos_amount"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
+                    <button name="action_print_xls" string="Print Xls" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pos_top_customers_wizard" model="ir.actions.act_window">
+        <field name="name">Top Customers</field>
+        <field name="res_model">pf.pos.top.customers.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+   
+    <menuitem id="menu_pos_top_customers"
+              name="Top Customers"
+              parent="point_of_sale.menu_point_rep"
+              action="action_pos_top_customers_wizard"
+              groups="pf_pos_top_customers.group_top_pos_customers_report"
+              sequence="100"/>
+</odoo>
